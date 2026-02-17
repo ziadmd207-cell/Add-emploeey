@@ -273,7 +273,8 @@
                 grid.innerHTML = '';
                 data.forEach(user => {
                     const fullName = `${user.first_name} ${user.last_name}`;
-                    const profileUrl = `${window.location.origin}/profile.html?id=${user.slug}`;
+                    // Automatically build the full URL regardless of domain or folder structure
+                    const profileUrl = new URL(`profile.html?id=${user.slug}`, window.location.href).href;
 
                     const card = document.createElement('div');
                     card.className = 'emp-card-premium';
@@ -289,10 +290,13 @@
                                     <ion-icon name="eye-outline"></ion-icon> عرض
                                 </a>
                                 <button onclick="downloadQR('${user.slug}', '${fullName}')" class="btn btn-primary btn-sm" style="font-weight:900;">
-                                    <ion-icon name="download-outline"></ion-icon> تحميل QR
+                                    <ion-icon name="download-outline"></ion-icon> QR
+                                </button>
+                                <button onclick="copyLink('${profileUrl}')" class="btn btn-light btn-sm" style="font-weight:900; background: #f1f5f9; border: 1px solid #e2e8f0;">
+                                    <ion-icon name="link-outline"></ion-icon> نسخ الرابط
                                 </button>
                                 <button onclick="deleteUser('${user.slug}', '${user.photo_url}')" class="btn btn-sm" style="background: #fee2e2; color: #ef4444; font-weight:900; border: 1px solid #fecaca; margin-right:auto;">
-                                    <ion-icon name="trash-outline"></ion-icon> حذف
+                                    <ion-icon name="trash-outline"></ion-icon>
                                 </button>
                             </div>
                         </div>
@@ -343,21 +347,57 @@
             }
         }
 
-        function downloadQR(slug, name) {
+        async function downloadQR(slug, name) {
             const qrBox = document.getElementById(`qr-${slug}`);
             const qrCanvas = qrBox.querySelector('canvas');
             const qrImg = qrBox.querySelector('img');
 
-            // Get data from either canvas or img depending on library render
             const dataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : (qrImg ? qrImg.src : '');
 
-            if (dataUrl) {
-                const link = document.createElement('a');
-                link.download = `QR_HighRes_${name.replace(/\s+/g, '_')}.png`;
-                link.href = dataUrl;
-                link.click();
+            if (!dataUrl) {
+                alert('فشل توليد كود الـ QR');
+                return;
+            }
+
+            // Smart Mobile Share/Save to Gallery
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    const response = await fetch(dataUrl);
+                    const blob = await response.blob();
+                    const file = new File([blob], `QR_${name.replace(/\s+/g, '_')}.png`, { type: 'image/png' });
+
+                    await navigator.share({
+                        files: [file],
+                        title: 'QR Code ID',
+                        text: `كود QR للموظف: ${name}`
+                    });
+                } catch (err) {
+                    triggerDownload(dataUrl, name);
+                }
             } else {
-                alert('فشل توليد كود الـ QR، حاول مرة أخرى.');
+                triggerDownload(dataUrl, name);
+            }
+        }
+
+        function triggerDownload(url, name) {
+            const a = document.createElement('a');
+            a.download = `QR_HighRes_${name.replace(/\s+/g, '_')}.png`;
+            a.href = url;
+            a.click();
+        }
+
+        async function copyLink(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                alert('✅ تم نسخ رابط الملف بنجاح!');
+            } catch (err) {
+                const el = document.createElement('textarea');
+                el.value = url;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('✅ تم نسخ الرابط!');
             }
         }
     </script>
