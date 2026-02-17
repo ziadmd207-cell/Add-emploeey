@@ -277,6 +277,9 @@
                                 <button onclick="downloadQR('${user.slug}', '${fullName}')" class="btn btn-primary btn-sm" style="font-weight:900;">
                                     <ion-icon name="download-outline"></ion-icon> تحميل QR
                                 </button>
+                                <button onclick="deleteUser('${user.slug}', '${user.photo_url}')" class="btn btn-sm" style="background: #fee2e2; color: #ef4444; font-weight:900; border: 1px solid #fecaca;">
+                                    <ion-icon name="trash-outline"></ion-icon> حذف
+                                </button>
                             </div>
                         </div>
                         <div class="qr-card-box" id="qr-${user.slug}"></div>
@@ -295,6 +298,34 @@
 
             } catch (err) {
                 grid.innerHTML = `<div style="color:#ef4444; font-weight:900;">⚠️ خطأ: ${err.message}</div>`;
+            }
+        }
+
+        async function deleteUser(slug, photoUrl) {
+            if (!confirm('هل أنت متأكد من حذف هذا الموظف نهائياً؟')) return;
+
+            try {
+                // 1. Delete Photo from Storage
+                if (photoUrl && photoUrl.includes('user-photos')) {
+                    try {
+                        const fileName = photoUrl.split('/').pop().split('?')[0];
+                        await db.storage.from('user-photos').remove([fileName]);
+                    } catch (e) { console.warn("Storage cleanup failed"); }
+                }
+
+                // 2. Delete Record from Database
+                const { error } = await db
+                    .from('users')
+                    .delete()
+                    .eq('slug', slug);
+
+                if (error) throw error;
+
+                alert('تم حذف الموظف بنجاح.');
+                loadDir(); // Refresh the list
+
+            } catch (err) {
+                alert('عفواً، فشل الحذف: ' + err.message);
             }
         }
 
