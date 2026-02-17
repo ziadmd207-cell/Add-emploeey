@@ -146,8 +146,24 @@
 
         .action-btns {
             display: flex;
-            gap: 0.6rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+
+        .btn-tiny {
+            padding: 0.35rem 0.6rem;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+
+        .qr-action-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         @media (max-width: 640px) {
@@ -162,6 +178,10 @@
 
             .action-btns {
                 justify-content: center;
+            }
+
+            .qr-action-group {
+                margin-top: 1rem;
             }
         }
     </style>
@@ -286,21 +306,23 @@
                             <h3 class="emp-name">${fullName}</h3>
                             <span class="emp-job-tag">${user.job_title}</span>
                             <div class="action-btns">
-                                <a href="profile.html?id=${user.slug}" target="_blank" class="btn btn-light btn-sm" style="font-weight:900;">
+                                <a href="profile.html?id=${user.slug}" target="_blank" class="btn btn-light btn-tiny">
                                     <ion-icon name="eye-outline"></ion-icon> عرض
                                 </a>
-                                <button onclick="downloadQR('${user.slug}', '${fullName}')" class="btn btn-primary btn-sm" style="font-weight:900;">
-                                    <ion-icon name="download-outline"></ion-icon> QR
+                                <button onclick="downloadQR('${user.slug}', '${fullName}')" class="btn btn-primary btn-tiny">
+                                    <ion-icon name="download-outline"></ion-icon> تحميل QR
                                 </button>
-                                <button onclick="copyLink('${profileUrl}')" class="btn btn-light btn-sm" style="font-weight:900; background: #f1f5f9; border: 1px solid #e2e8f0;">
-                                    <ion-icon name="link-outline"></ion-icon> نسخ الرابط
-                                </button>
-                                <button onclick="deleteUser('${user.slug}', '${user.photo_url}')" class="btn btn-sm" style="background: #fee2e2; color: #ef4444; font-weight:900; border: 1px solid #fecaca; margin-right:auto;">
-                                    <ion-icon name="trash-outline"></ion-icon>
+                                <button onclick="deleteUser('${user.slug}', '${user.photo_url}')" class="btn btn-tiny" style="background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;">
+                                    <ion-icon name="trash-outline"></ion-icon> حذف
                                 </button>
                             </div>
                         </div>
-                        <div class="qr-card-box" id="qr-${user.slug}"></div>
+                        <div class="qr-action-group">
+                            <div class="qr-card-box" id="qr-${user.slug}"></div>
+                            <button onclick="copyLink('${profileUrl}')" class="btn btn-light btn-tiny btn-w100" style="background: #f1f5f9; border: 1px solid #e2e8f0;">
+                                <ion-icon name="link-outline"></ion-icon> نسخ الرابط
+                            </button>
+                        </div>
                     `;
                     grid.appendChild(card);
 
