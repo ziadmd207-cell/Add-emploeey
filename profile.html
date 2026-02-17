@@ -38,15 +38,15 @@
         /* Improved Header */
         .top-nav {
             background: #ffffff;
-            height: 120px;
+            height: 75px;
             display: flex;
             align-items: center;
             padding: 0 8%;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            justify-content: center;
         }
 
         .nav-logo-wrap {
@@ -55,27 +55,29 @@
             gap: 15px;
         }
 
-        .nav-logo {
-            width: 110px;
-            height: 110px;
+        .banner-logo {
+            width: 135px;
+            height: 135px;
             background: #fff;
-            border-radius: 20px;
+            border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border: 2px solid #f1f5f9;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            border: 3px solid #ffffff;
+            margin-bottom: 20px;
+            position: relative;
         }
 
-        .nav-logo img {
+        .banner-logo img {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
 
-        .nav-logo ion-icon {
-            font-size: 45px;
+        .banner-logo ion-icon {
+            font-size: 60px;
             color: var(--primary);
         }
 
@@ -94,7 +96,8 @@
         /* Premium CSS Banner (Trust & Medical Theme) */
         .banner-container {
             width: 100%;
-            height: 280px;
+            height: 480px;
+            /* Increased height significantly */
             background: linear-gradient(135deg, #065f46 0%, #059669 50%, #10b981 100%);
             position: relative;
             overflow: hidden;
@@ -102,6 +105,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding-bottom: 60px;
+            /* Room for content above the cut */
         }
 
         .banner-pattern {
@@ -113,10 +118,12 @@
         }
 
         .banner-icons {
+            position: absolute;
             display: flex;
-            gap: 4rem;
+            gap: 15rem;
             z-index: 1;
-            opacity: 0.2;
+            opacity: 0.15;
+            pointer-events: none;
         }
 
         .banner-icons ion-icon {
@@ -125,22 +132,18 @@
         }
 
         .banner-content {
-            position: absolute;
-            bottom: 115px;
-            /* Raised a bit more */
+            position: relative;
             text-align: center;
             z-index: 2;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Center perfectly within the taller banner */
         }
 
         .banner-content ion-icon {
-            font-size: 2.8rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 2px;
-            /* Close to text */
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+            display: none;
+            /* Icon replaced by logo */
         }
 
         .banner-text {
@@ -168,9 +171,10 @@
 
         /* Profile Overlap Layout */
         .profile-wrapper {
-            max-width: 600px;
-            margin: -60px auto 4rem;
-            /* Balanced overlap */
+            max-width: 500px;
+            /* Reduced from 600px to make it more compact */
+            margin: -45px auto 4rem;
+            /* Lifted up to overlap banner */
             padding: 0 1.5rem;
             position: relative;
             z-index: 10;
@@ -188,7 +192,8 @@
         .user-photo-box {
             width: 160px;
             height: 160px;
-            margin: -110px auto 1.5rem;
+            margin: -80px auto 1.5rem;
+            /* Still overlapping the card but not the banner */
             position: relative;
         }
 
@@ -214,21 +219,23 @@
         }
 
         .emp-name {
-            font-size: 2.1rem;
-            font-weight: 900;
+            font-size: 1.5rem;
+            /* Back to original small scale */
+            font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
         }
 
         .emp-job {
-            font-size: 1.2rem;
+            font-size: 0.9rem;
+            /* Compact and clean */
             font-weight: 800;
             color: var(--primary);
             background: #ecfdf5;
-            padding: 8px 25px;
+            padding: 4px 16px;
             border-radius: 50px;
             display: inline-block;
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.8rem;
             border: 1px solid #d1fae5;
         }
 
@@ -242,10 +249,11 @@
         .info-card {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            padding: 1.4rem;
+            gap: 1rem;
+            padding: 0.9rem;
+            /* Very compact */
             background: #f8fafc;
-            border-radius: 24px;
+            border-radius: 16px;
             border: 1px solid #f1f5f9;
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -283,16 +291,17 @@
         }
 
         .icon-box {
-            width: 55px;
-            height: 55px;
+            width: 42px;
+            /* Small square icons */
+            height: 42px;
             background: #fff;
             color: var(--primary);
-            border-radius: 16px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            font-size: 1.3rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
         }
 
         .info-content {
@@ -301,15 +310,17 @@
         }
 
         .info-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            /* Smaller labels */
             color: var(--text-muted);
             font-weight: 800;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .info-val {
-            font-size: 1.15rem;
-            font-weight: 900;
+            font-size: 0.95rem;
+            /* Compact values */
+            font-weight: 800;
             color: var(--text-main);
         }
 
@@ -391,6 +402,22 @@
                 margin-top: -90px;
             }
         }
+
+        /* Footer styles */
+        .page-footer {
+            margin-top: 4rem;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .footer-brand-text {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
     </style>
 </head>
 
@@ -405,10 +432,6 @@
         <!-- королевский заголовок (Professional Header) -->
         <header class="top-nav">
             <h1 class="nav-title" id="header-comp-name">اسم الشركة</h1>
-            <div class="nav-logo" id="header-logo-container">
-                <img id="header-logo" src="" style="display:none;">
-                <ion-icon id="header-placeholder" name="business"></ion-icon>
-            </div>
         </header>
 
         <!-- Premium Medical Banner -->
@@ -419,7 +442,11 @@
                 <ion-icon name="shield-half-outline"></ion-icon>
             </div>
             <div class="banner-content">
-                <ion-icon name="medkit-outline"></ion-icon>
+                <div class="banner-logo">
+                    <img id="main-logo" src="" style="display:none;">
+                    <ion-icon id="main-placeholder" name="business"></ion-icon>
+                </div>
+
                 <h2 class="banner-text">الخدمات التأمينية الطبية</h2>
                 <p class="banner-subtext">بسرعة.. وثقة.. وأمان</p>
             </div>
@@ -486,6 +513,11 @@
             <p style="text-align:center; margin-top:3rem; color:var(--text-muted); font-size:0.8rem; font-weight:800;">
             </p>
         </div>
+
+        <footer class="page-footer">
+            <p class="footer-brand-text">Healthy Care A member of MH Group</p>
+        </footer>
+    </div>
     </div>
 
     <script>
@@ -520,10 +552,10 @@
                 if (company) {
                     document.getElementById('header-comp-name').innerText = company.company_name;
                     if (company.company_logo_url) {
-                        const img = document.getElementById('header-logo');
+                        const img = document.getElementById('main-logo');
                         img.src = company.company_logo_url;
                         img.style.display = 'block';
-                        document.getElementById('header-placeholder').style.display = 'none';
+                        document.getElementById('main-placeholder').style.display = 'none';
                     }
                 }
 
