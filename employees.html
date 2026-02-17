@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل الموظفين | لوحة التحكم</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        .search-section {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid #f1f5f9;
+            max-width: 700px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .search-box-modern {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-box-modern ion-icon {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem;
+            color: #94a3b8;
+        }
+
+        .search-box-modern input {
+            width: 100%;
+            padding: 0.8rem 3.5rem 0.8rem 1.5rem;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-family: inherit;
+            font-weight: 700;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .search-box-modern input:focus {
+            border-color: #4f46e5;
+            background: #fff;
+        }
+
+        /* Centered Vertical Grid */
+        .emp-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+            padding-bottom: 3rem;
+        }
+
+        /* Horizontal Short Card */
+        .emp-card-premium {
+            background: white;
+            border-radius: 22px;
+            padding: 1.2rem;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 700px;
+            /* Wider */
+            text-align: right;
+        }
+
+        .emp-card-premium:hover {
+            transform: scale(1.01);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            border-color: #e0e7ff;
+        }
+
+        .emp-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 2px solid #f8fafc;
+            flex-shrink: 0;
+        }
+
+        .emp-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .emp-name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .emp-job-tag {
+            font-size: 0.85rem;
+            color: #4f46e5;
+            font-weight: 800;
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 50px;
+            align-self: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .qr-card-box {
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        @media (max-width: 640px) {
+            .emp-card-premium {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .emp-job-tag {
+                align-self: center;
+            }
+
+            .action-btns {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo" id="s-logo">
+                    <ion-icon name="business" style="color:#4f46e5; font-size:50px;"></ion-icon>
+                </div>
+                <h2 id="s-name">الشركة</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html">
+                    <ion-icon name="person-add-outline"></ion-icon>
+                    <span>إضافة موظف</span>
+                </a>
+                <a href="employees.html" class="active">
+                    <ion-icon name="people-outline"></ion-icon>
+                    <span>عرض الموظفين</span>
+                </a>
+                <a href="settings.html">
+                    <ion-icon name="settings-outline"></ion-icon>
+                    <span>إعدادات الشركة</span>
+                </a>
+                <a href="admin-security.html">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <span>أمان الحساب</span>
+                </a>
+                <a href="#" onclick="logout()" style="margin-top: auto; color: #ef4444;">
+                    <ion-icon name="log-out-outline"></ion-icon>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="page-main-wide">
+            <div class="header-banner" style="max-width:100%; margin-bottom:1.5rem;">
+                <ion-icon name="people"></ion-icon>
+                <div>
+                    <h1>قائمة الموظفين</h1>
+                    <p>استعراض وتحميل بطاقات الهوية لجميع الموظفين</p>
+                </div>
+            </div>
+
+            <!-- Modern Search -->
+            <div class="search-section">
+                <div class="search-box-modern">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="text" id="search-input" placeholder="ابحث عن موظف بالاسم...">
+                </div>
+                <button class="btn btn-light" onclick="loadDir()" title="تحديث البيانات">
+                    <ion-icon name="refresh-outline" style="font-size:1.5rem;"></ion-icon>
+                </button>
+            </div>
+
+            <div id="emp-grid" class="emp-grid">
+                <!-- Loading State -->
+                <div style="text-align:center; padding:5rem;">
+                    <div class="spinner" style="margin: 0 auto 1rem;"></div>
+                    <p style="color:#64748b; font-weight:800;">جاري جلب بيانات الموظفين...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const SUPA_URL = "https://cioydgupnzyckmoklgsf.supabase.co";
+        const SUPA_KEY = "sb_publishable_jbXpMOZBz1zEy-QkD720tQ_EJxzOwev";
+        const db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+        window.addEventListener('load', async () => {
+            try {
+                const { data } = await db.from('company_settings').select('*').limit(1).single();
+                if (data) {
+                    document.getElementById('s-name').innerText = data.company_name || 'الشركة';
+                    if (data.company_logo_url) {
+                        document.getElementById('s-logo').innerHTML = `<img src="${data.company_logo_url}" style="width:100%; height:100%; object-fit:contain;">`;
+                    }
+                }
+            } catch (e) { }
+
+            loadDir();
+
+            document.getElementById('search-input').addEventListener('input', function () {
+                const query = this.value.trim().toLowerCase();
+                const cards = document.querySelectorAll('.emp-card-premium');
+                cards.forEach(card => {
+                    const name = card.getAttribute('data-name').toLowerCase();
+                    card.style.display = name.includes(query) ? 'flex' : 'none';
+                });
+            });
+        });
+
+        async function loadDir() {
+            const grid = document.getElementById('emp-grid');
+            try {
+                const { data, error } = await db.from('users').select('*');
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    grid.innerHTML = `<p style="color:#64748b; font-weight:900; margin-top:3rem;">لا يوجد موظفين حالياً.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = '';
+                data.forEach(user => {
+                    const fullName = `${user.first_name} ${user.last_name}`;
+                    const profileUrl = `${window.location.origin}/profile.html?id=${user.slug}`;
+
+                    const card = document.createElement('div');
+                    card.className = 'emp-card-premium';
+                    card.setAttribute('data-name', fullName);
+
+                    card.innerHTML = `
+                        <img src="${user.photo_url || 'https://via.placeholder.com/150'}" class="emp-avatar">
+                        <div class="emp-info">
+                            <h3 class="emp-name">${fullName}</h3>
+                            <span class="emp-job-tag">${user.job_title}</span>
+                            <div class="action-btns">
+                                <a href="profile.html?id=${user.slug}" target="_blank" class="btn btn-light btn-sm" style="font-weight:900;">
+                                    <ion-icon name="eye-outline"></ion-icon> عرض
+                                </a>
+                                <button onclick="downloadQR('${user.slug}', '${fullName}')" class="btn btn-primary btn-sm" style="font-weight:900;">
+                                    <ion-icon name="download-outline"></ion-icon> تحميل QR
+                                </button>
+                            </div>
+                        </div>
+                        <div class="qr-card-box" id="qr-${user.slug}"></div>
+                    `;
+                    grid.appendChild(card);
+
+                    new QRCode(document.getElementById(`qr-${user.slug}`), {
+                        text: profileUrl,
+                        width: 90,
+                        height: 90,
+                        colorDark: "#1e293b",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                });
+
+            } catch (err) {
+                grid.innerHTML = `<div style="color:#ef4444; font-weight:900;">⚠️ خطأ: ${err.message}</div>`;
+            }
+        }
+
+        function downloadQR(slug, name) {
+            const qrCanvas = document.querySelector(`#qr-${slug} canvas`);
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.download = `QR_${name.replace(/\s+/g, '_')}.png`;
+                link.href = qrCanvas.toDataURL("image/png");
+                link.click();
+            }
+        }
+    </script>
+</body>
+
+</html>

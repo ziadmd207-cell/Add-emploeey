@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أمان الحساب | لوحة التحكم</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo" id="s-logo">
+                    <ion-icon name="business" style="color:#4f46e5; font-size:50px;"></ion-icon>
+                </div>
+                <h2 id="s-name">الشركة</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html">
+                    <ion-icon name="person-add-outline"></ion-icon>
+                    <span>إضافة موظف</span>
+                </a>
+                <a href="employees.html">
+                    <ion-icon name="people-outline"></ion-icon>
+                    <span>عرض الموظفين</span>
+                </a>
+                <a href="settings.html">
+                    <ion-icon name="settings-outline"></ion-icon>
+                    <span>إعدادات الشركة</span>
+                </a>
+                <a href="admin-security.html" class="active">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <span>أمان الحساب</span>
+                </a>
+                <a href="#" onclick="logout()" style="margin-top: auto; color: #ef4444;">
+                    <ion-icon name="log-out-outline"></ion-icon>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="page-main">
+            <div class="header-banner">
+                <ion-icon name="shield-half"></ion-icon>
+                <div>
+                    <h1>أمان الحساب</h1>
+                    <p>تغيير اسم المستخدم وكلمة المرور الخاصة بالمسؤول</p>
+                </div>
+            </div>
+
+            <form id="security-form" class="card">
+                <div class="field">
+                    <label>اسم المستخدم الحالي</label>
+                    <input type="text" id="current-username" class="input" disabled
+                        style="background: #f1f5f9; color: #0f172a; font-weight: 800; opacity: 1; cursor: not-allowed;">
+                </div>
+
+                <div class="field">
+                    <label>اسم المستخدم الجديد</label>
+                    <input type="text" id="new-username" class="input" required placeholder="أدخل اسم المستخدم الجديد"
+                        style="color: #064e3b; font-weight: 700;">
+                </div>
+
+                <div class="field">
+                    <label>كلمة المرور الجديدة</label>
+                    <input type="password" id="new-password" class="input" required placeholder="••••••••"
+                        style="color: #064e3b; font-weight: 700;">
+                </div>
+
+                <div id="status-msg"
+                    style="display:none; padding:1rem; border-radius:12px; font-weight:800; text-align:center; margin-top:1rem;">
+                </div>
+
+                <button type="submit" id="save-btn" class="btn btn-primary btn-w100" style="margin-top:2rem;">
+                    <ion-icon name="save-outline"></ion-icon> تحديث بيانات الدخول
+                </button>
+            </form>
+        </main>
+    </div>
+
+    <!-- Success Popup -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-box">
+            <div class="success-check">
+                <ion-icon name="checkmark-sharp"></ion-icon>
+            </div>
+            <h2>تم التحديث بنجاح!</h2>
+            <p>تم تغيير بيانات الدخول، يرجى تسجيل الدخول مرة أخرى بالبيانات الجديدة.</p>
+            <button onclick="logout()" class="btn btn-primary btn-w100">
+                <ion-icon name="log-in-outline"></ion-icon> تسجيل الدخول الآن
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const SUPA_URL = "https://cioydgupnzyckmoklgsf.supabase.co";
+        const SUPA_KEY = "sb_publishable_jbXpMOZBz1zEy-QkD720tQ_EJxzOwev";
+        const db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+        let originalUsername = '';
+
+        window.addEventListener('load', async () => {
+            const sessionData = JSON.parse(localStorage.getItem('admin_session'));
+            if (sessionData && sessionData.user) {
+                originalUsername = sessionData.user;
+                document.getElementById('current-username').value = originalUsername;
+                document.getElementById('new-username').value = originalUsername;
+            }
+
+            // Load branding
+            try {
+                const { data } = await db.from('company_settings').select('*').limit(1).single();
+                if (data) {
+                    document.getElementById('s-name').innerText = data.company_name || 'الشركة';
+                    if (data.company_logo_url) {
+                        document.getElementById('s-logo').innerHTML = `<img src="${data.company_logo_url}">`;
+                    }
+                }
+            } catch (e) { console.log('load error', e); }
+
+            document.getElementById('security-form').onsubmit = async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('save-btn');
+                const statusDiv = document.getElementById('status-msg');
+
+                const newUsername = document.getElementById('new-username').value.trim();
+                const newPassword = document.getElementById('new-password').value;
+
+                btn.disabled = true;
+                btn.textContent = 'جاري التحديث...';
+
+                try {
+                    const salt = dcodeIO.bcrypt.genSaltSync(6); // Correct salt rounds for the type you wanted
+                    const hashedPassword = dcodeIO.bcrypt.hashSync(newPassword, salt);
+
+                    const { error } = await db
+                        .from('admin_users')
+                        .update({
+                            username: newUsername,
+                            password_hash: hashedPassword
+                        })
+                        .eq('username', originalUsername);
+
+                    if (error) throw error;
+
+                    document.getElementById('success-overlay').classList.add('show');
+
+                } catch (err) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#fef2f2';
+                    statusDiv.style.color = '#dc2626';
+                    statusDiv.textContent = '❌ خطأ: ' + err.message;
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<ion-icon name="save-outline"></ion-icon> تحديث بيانات الدخول';
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>

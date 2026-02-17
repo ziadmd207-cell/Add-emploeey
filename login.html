@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول | لوحة التحكم</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            /* Clean Professional Background */
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Background Elements */
+        .login-container::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 3.5rem 2.5rem;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            border: 1px solid #e2e8f0;
+        }
+
+        .login-logo-box {
+            width: 110px;
+            height: 110px;
+            background: #fff;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+        }
+
+        .login-logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 12px;
+        }
+
+        .login-logo-box ion-icon {
+            font-size: 55px;
+            color: #059669;
+        }
+
+        .login-card h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .login-card p {
+            color: #64748b;
+            margin-bottom: 2.5rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            text-align: right;
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            padding-right: 5px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon ion-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 0.9rem 2.8rem 0.9rem 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+            background: #f8fafc;
+        }
+
+        .input-with-icon input:focus {
+            border-color: #059669;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #059669 0%, #064e3b 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+            margin-top: 1.5rem;
+            box-shadow: 0 10px 20px rgba(6, 78, 59, 0.2);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(6, 78, 59, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-msg {
+            background: #fff1f2;
+            color: #be123c;
+            padding: 1rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            display: none;
+            border: 1px solid #fecdd3;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo-box" id="logo-container">
+                <ion-icon name="shield-checkmark"></ion-icon>
+            </div>
+            <h2 id="display-comp-name">تسجيل الدخول</h2>
+            <p>لوحة التحكم الإدارية للادمن</p>
+
+            <div id="error-box" class="error-msg">
+                <ion-icon name="alert-circle" style="vertical-align: middle; font-size: 1.2rem;"></ion-icon>
+                بيانات الدخول غير صحيحة، حاول مجدداً
+            </div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label>اسم المستخدم</label>
+                    <div class="input-with-icon">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <input type="text" id="username" required placeholder="أدخل اسم المستخدم">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <div class="input-with-icon">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" id="password" required placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn" class="login-btn">
+                    <span>دخول </span>
+                    <ion-icon name="arrow-back-circle-outline" style="font-size: 1.4rem;"></ion-icon>
+                </button>
+            </form>
+
+            <div class="footer-text">
+                النظام مؤمن بالكامل &copy; <span id="year"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPA_URL = "https://cioydgupnzyckmoklgsf.supabase.co";
+        const SUPA_KEY = "sb_publishable_jbXpMOZBz1zEy-QkD720tQ_EJxzOwev";
+        const db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+        document.getElementById('year').innerText = new Date().getFullYear();
+
+        // Load branding
+        window.onload = async () => {
+            try {
+                const { data } = await db.from('company_settings').select('*').limit(1).single();
+                if (data) {
+                    if (data.company_name) {
+                        document.getElementById('display-comp-name').innerText = data.company_name;
+                    }
+                    if (data.company_logo_url) {
+                        document.getElementById('logo-container').innerHTML = `<img src="${data.company_logo_url}" alt="Logo">`;
+                    }
+                }
+            } catch (e) {
+                console.log('Branding load error', e);
+            }
+        };
+
+        // Login Logic
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const errorBox = document.getElementById('error-box');
+
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.querySelector('span').textContent = 'جاري التحقق...';
+            errorBox.style.display = 'none';
+
+            try {
+                // Fetch user by username first
+                const { data, error } = await db
+                    .from('admin_users')
+                    .select('*')
+                    .eq('username', user)
+                    .single();
+
+                if (error || !data) throw new Error();
+
+                // Compare bcrypt hash
+                const isMatch = dcodeIO.bcrypt.compareSync(pass, data.password_hash);
+
+                if (!isMatch) throw new Error();
+
+                localStorage.setItem('admin_session', JSON.stringify({
+                    user: data.username,
+                    time: Date.now()
+                }));
+
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                errorBox.style.display = 'block';
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'دخول النظام';
+            }
+        };
+    </script>
+</body>
+
+</html>
