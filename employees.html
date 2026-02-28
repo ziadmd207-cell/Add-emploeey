@@ -251,10 +251,63 @@
         </main>
     </div>
 
+    <div class="success-overlay" id="edit-overlay">
+        <div class="success-box" style="max-width: 600px; padding: 2rem; border-radius: 20px;">
+            <h2 style="margin-bottom: 1.5rem; color: #1e293b; font-weight: 900;">تعديل بيانات الموظف</h2>
+            <form id="edit-form" style="text-align: right;" onsubmit="submitEdit(event)">
+                <input type="hidden" id="edit-slug">
+
+                <div class="two-cols">
+                    <div class="field">
+                        <label>الاسم الأول</label>
+                        <input type="text" id="efname" class="input" required>
+                    </div>
+                    <div class="field">
+                        <label>اسم العائلة</label>
+                        <input type="text" id="elname" class="input" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>الرقم القومي</label>
+                    <input type="text" id="enid" class="input" required>
+                </div>
+
+                <div class="two-cols">
+                    <div class="field">
+                        <label>المسمى الوظيفي</label>
+                        <input type="text" id="ejob" class="input" required>
+                    </div>
+                    <div class="field">
+                        <label>اسم الشركة (اختياري)</label>
+                        <input type="text" id="ecomp" class="input">
+                    </div>
+                </div>
+
+                <div class="two-cols">
+                    <div class="field">
+                        <label>تاريخ التسجيل</label>
+                        <input type="date" id="esdate" class="input">
+                    </div>
+                    <div class="field">
+                        <label>تاريخ الانتهاء</label>
+                        <input type="date" id="eedate" class="input">
+                    </div>
+                </div>
+
+                <div class="two-cols" style="margin-top: 2rem;">
+                    <button type="submit" id="save-edit-btn" class="btn btn-primary btn-w100">حفظ التعديلات</button>
+                    <button type="button" onclick="closeEdit()" class="btn btn-light btn-w100">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const SUPA_URL = "https://cioydgupnzyckmoklgsf.supabase.co";
         const SUPA_KEY = "sb_publishable_jbXpMOZBz1zEy-QkD720tQ_EJxzOwev";
         const db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+        let allUsers = [];
 
         window.addEventListener('load', async () => {
             try {
@@ -286,10 +339,12 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
+                    allUsers = [];
                     grid.innerHTML = `<p style="color:#64748b; font-weight:900; margin-top:3rem;">لا يوجد موظفين حالياً.</p>`;
                     return;
                 }
 
+                allUsers = data;
                 grid.innerHTML = '';
                 data.forEach(user => {
                     const fullName = `${user.first_name} ${user.last_name}`;
@@ -311,6 +366,9 @@
                                 </a>
                                 <button onclick="downloadQR('${user.slug}', '${fullName}')" class="btn btn-primary btn-tiny">
                                     <ion-icon name="download-outline"></ion-icon> تحميل QR
+                                </button>
+                                <button onclick="openEdit('${user.slug}')" class="btn btn-tiny" style="background: #fef08a; color: #854d0e; border: 1px solid #fde047;">
+                                    <ion-icon name="create-outline"></ion-icon> تعديل
                                 </button>
                                 <button onclick="deleteUser('${user.slug}', '${user.photo_url}')" class="btn btn-tiny" style="background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;">
                                     <ion-icon name="trash-outline"></ion-icon> حذف
@@ -420,6 +478,56 @@
                 document.execCommand('copy');
                 document.body.removeChild(el);
                 alert('✅ تم نسخ الرابط!');
+            }
+        }
+
+        function openEdit(slug) {
+            const user = allUsers.find(u => u.slug === slug);
+            if (!user) return;
+            document.getElementById('edit-slug').value = user.slug;
+            document.getElementById('efname').value = user.first_name || '';
+            document.getElementById('elname').value = user.last_name || '';
+            document.getElementById('enid').value = user.national_id || '';
+            document.getElementById('ejob').value = user.job_title || '';
+            document.getElementById('ecomp').value = user.company_name || '';
+            document.getElementById('esdate').value = user.start_date || '';
+            document.getElementById('eedate').value = user.end_date || '';
+
+            document.getElementById('edit-overlay').classList.add('show');
+        }
+
+        function closeEdit() {
+            document.getElementById('edit-overlay').classList.remove('show');
+        }
+
+        async function submitEdit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('save-edit-btn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الحفظ...';
+
+            const slug = document.getElementById('edit-slug').value;
+            const payload = {
+                first_name: document.getElementById('efname').value.trim(),
+                last_name: document.getElementById('elname').value.trim(),
+                national_id: document.getElementById('enid').value.trim(),
+                job_title: document.getElementById('ejob').value.trim(),
+                company_name: document.getElementById('ecomp').value.trim() || null,
+                start_date: document.getElementById('esdate').value || null,
+                end_date: document.getElementById('eedate').value || null,
+            };
+
+            try {
+                const { error } = await db.from('users').update(payload).eq('slug', slug);
+                if (error) throw error;
+                alert('تم تعديل بيانات الموظف بنجاح.');
+                closeEdit();
+                loadDir();
+            } catch (err) {
+                alert('خطأ أثناء التعديل: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'حفظ التعديلات';
             }
         }
     </script>
