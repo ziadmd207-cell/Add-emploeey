@@ -457,6 +457,13 @@ body {
     margin-bottom: 1.5rem;
 }
 
+.qr-holder canvas,
+.qr-holder img {
+    width: 200px !important;
+    height: 200px !important;
+    margin: 0 auto;
+}
+
 /* ===================== EMPLOYEES GRID ===================== */
 .page-main-wide {
     flex: 1;
