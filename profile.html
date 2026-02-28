@@ -472,7 +472,7 @@
                         </div>
                     </div>
 
-                    <div class="info-card">
+                    <div class="info-card" id="comp-card">
                         <div class="icon-box"><ion-icon name="business-outline"></ion-icon></div>
                         <div class="info-content">
                             <p class="info-label">اسم الشركة</p>
@@ -564,7 +564,13 @@
                 document.getElementById('user-job').innerText = user.job_title;
                 document.getElementById('user-job-detail').innerText = user.job_title;
                 document.getElementById('user-nid').innerText = user.national_id;
-                document.getElementById('user-comp').innerText = user.company_name || (company ? company.company_name : 'غير مسجل');
+
+                if (user.company_name) {
+                    document.getElementById('user-comp').innerText = user.company_name;
+                } else {
+                    document.getElementById('comp-card').style.display = 'none';
+                }
+
                 document.getElementById('user-start').innerText = user.start_date || 'غير محدد';
                 document.getElementById('user-end').innerText = user.end_date || 'غير محدد';
                 document.getElementById('user-photo').src = user.photo_url || 'https://via.placeholder.com/200';
