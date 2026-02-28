@@ -125,10 +125,13 @@
                 <button onclick="downloadQR()" class="btn btn-primary">
                     <ion-icon name="download-outline"></ion-icon> تحميل QR
                 </button>
-                <a id="profile-link" href="#" target="_blank" class="btn btn-light">
-                    <ion-icon name="eye-outline"></ion-icon> معاينة الصفحة
-                </a>
+                <button id="copy-btn" class="btn btn-light">
+                    <ion-icon name="copy-outline"></ion-icon> نسخ الرابط
+                </button>
             </div>
+            <a id="profile-link" href="#" target="_blank" class="btn btn-light btn-w100" style="margin-top:0.8rem;">
+                <ion-icon name="eye-outline"></ion-icon> معاينة الصفحة
+            </a>
             <button onclick="closeSuccess()" class="btn btn-light btn-w100" style="margin-top:1rem;">
                 <ion-icon name="add-circle-outline"></ion-icon> إضافة موظف جديد
             </button>
@@ -241,7 +244,7 @@
                     last_name: document.getElementById('lname').value.trim(),
                     national_id: document.getElementById('nid').value.trim(),
                     job_title: document.getElementById('job').value.trim(),
-                    company_name: document.getElementById('comp').value.trim(),
+                    company_name: document.getElementById('comp').value.trim() || null,
                     start_date: document.getElementById('sdate').value || null,
                     end_date: document.getElementById('edate').value || null,
                     slug: slug,
@@ -269,26 +272,75 @@
             const overlay = document.getElementById('success-overlay');
             const qrDiv = document.getElementById('qr-area');
             qrDiv.innerHTML = '';
+
+            // Build absolute URL automatically
+            const profileUrl = new URL(`profile.html?id=${slug}`, window.location.href).href;
+
             new QRCode(qrDiv, {
-                text: window.location.origin + '/profile.html?id=' + slug,
-                width: 150, height: 150
+                text: profileUrl,
+                width: 1000,
+                height: 1000
             });
-            document.getElementById('profile-link').href = 'profile.html?id=' + slug;
+            document.getElementById('profile-link').href = profileUrl;
+
+            // Set up copy button
+            document.getElementById('copy-btn').onclick = () => copyLink(profileUrl);
+
             overlay.classList.add('show');
+        }
+
+        async function copyLink(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                alert('✅ تم نسخ رابط الملف بنجاح!');
+            } catch (err) {
+                const el = document.createElement('textarea');
+                el.value = url;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('✅ تم نسخ الرابط!');
+            }
         }
 
         function closeSuccess() {
             document.getElementById('success-overlay').classList.remove('show');
         }
 
-        function downloadQR() {
+        async function downloadQR() {
             const img = document.querySelector('#qr-area img');
-            if (img) {
-                const a = document.createElement('a');
-                a.download = 'QR_Identity.png';
-                a.href = img.src;
-                a.click();
+            const canvas = document.querySelector('#qr-area canvas');
+            if (!img && !canvas) return;
+
+            const dataUrl = canvas ? canvas.toDataURL("image/png") : img.src;
+
+            // Smart Mobile Share/Save
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    const response = await fetch(dataUrl);
+                    const blob = await response.blob();
+                    const file = new File([blob], 'QR_HighRes.png', { type: 'image/png' });
+
+                    await navigator.share({
+                        files: [file],
+                        title: 'QR Code',
+                        text: 'حفظ كود الـ QR بدقة عالية'
+                    });
+                } catch (err) {
+                    console.log('Share failed, fallback to download');
+                    triggerDownload(dataUrl);
+                }
+            } else {
+                triggerDownload(dataUrl);
             }
+        }
+
+        function triggerDownload(url) {
+            const a = document.createElement('a');
+            a.download = 'QR_HighRes.png';
+            a.href = url;
+            a.click();
         }
     </script>
 </body>
